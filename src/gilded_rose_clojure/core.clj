@@ -5,8 +5,8 @@
 (defn apply-once-and-again-after-sell-in
   [modifier sell-in quality]
   (if (> sell-in 0)
-    (modifier quality)
-    (-> quality modifier modifier)
+    (apply-n-times modifier 1 quality)
+    (apply-n-times modifier 2 quality)
     )
   )
 
@@ -41,21 +41,21 @@
   )
 
 (def exact-name-quality-modifiers
-  {"Aged Brie"      brie-quality-modify,
-   "Backstage Pass" backstage-quality-modify,
-   "Sulfuras"       (fn [_ quality] quality)}
+  {"Aged Brie"                                 brie-quality-modify,
+   "Backstage passes to a TAFKAL80ETC concert" backstage-quality-modify,
+   "Sulfuras, Hand of Ragnaros"                (fn [_ quality] quality)}
   )
 
 (def sell-in-modifiers
-  {"Sulfuras" identity}
+  {"Sulfuras, Hand of Ragnaros" identity}
   )
 
 (defn get-quality-modifier
   [name]
-  (let [exact-name-modifier (get exact-name-quality-modifiers name)]
+  (let [exact-name-modify (get exact-name-quality-modifiers name)]
     (cond
       (re-find #"Conjured" name) conjured-quality-modify
-      exact-name-modifier exact-name-modifier
+      exact-name-modify exact-name-modify
       :else generic-item-quality-modify)
     ))
 
@@ -67,9 +67,9 @@
 (defn update-item-quality
   [item]
   (let [sell-in (:sell-in item)
-        full-quality-modifier (get-quality-modifier (:name item))
-        quality-modifier (partial full-quality-modifier sell-in)]
-    (update item :quality quality-modifier)))
+        quality-modifier (get-quality-modifier (:name item))
+        quality-modifier-for-sell-in (partial quality-modifier sell-in)]
+    (update item :quality quality-modifier-for-sell-in)))
 
 (defn update-item-sell-in
   [item]
@@ -89,20 +89,23 @@
   (map update-item items))
 
 (defn -main
-  [& args]
+  [& _]
   (let [data [
               {:name "+5 Dexterity Vest" :sell-in 10 :quality 20}
               {:name "Aged Brie" :sell-in 2 :quality 0}
               {:name "Elixir of the Mongoose" :sell-in 5 :quality 7}
-              {:name "Sulfuras" :sell-in 0 :quality 80}
-              {:name "Sulfuras" :sell-in -1 :quality 80}
-              {:name "Backstage Pass" :sell-in 15 :quality 20}
-              {:name "Backstage Pass" :sell-in 10 :quality 49}
-              {:name "Backstage Pass" :sell-in 5 :quality 49}
+              {:name "Sulfuras, Hand of Ragnaros" :sell-in 0 :quality 80}
+              {:name "Sulfuras, Hand of Ragnaros" :sell-in -1 :quality 80}
+              {:name "Backstage passes to a TAFKAL80ETC concert" :sell-in 15 :quality 20}
+              {:name "Backstage passes to a TAFKAL80ETC concert" :sell-in 10 :quality 49}
+              {:name "Backstage passes to a TAFKAL80ETC concert" :sell-in 5 :quality 49}
               {:name "Conjured Mana Cake" :sell-in 3 :quality 6}
-              ]]
-    (println data)
-    (println (update-quality data))
+              ]
+        updated-data (update-quality data)
+        ]
+    (doall (map println data))
+    (println)
+    (doall (map println updated-data))
     )
   )
 
