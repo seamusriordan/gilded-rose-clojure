@@ -1,54 +1,30 @@
 (ns gilded-rose-clojure.core
-  (:require [gilded-rose-clojure.helpers :refer :all])
-  )
+  (:require [gilded-rose-clojure.helpers :refer :all]
+            [gilded-rose-clojure.brie :as brie]
+            [gilded-rose-clojure.backstage :as backstage]
+            [gilded-rose-clojure.conjured :as conjured]
+            [gilded-rose-clojure.sulfuras :as sulfuras]))
 
 (defn generic-item-quality-modify
   [sell-in quality]
   (apply-sell-in-based-quality-modifier dec-keep-positive sell-in quality)
   )
 
-(defn brie-quality-modify
-  [sell-in quality]
-  (let [inc-keep-below-50 (partial inc-keep-below 50)]
-    (apply-sell-in-based-quality-modifier inc-keep-below-50 sell-in quality)
-    )
-  )
-
-(defn backstage-quality-modify
-  [sell-in quality]
-  (
-    let [max-quality 50
-         inc-keep-below-50 (partial inc-keep-below max-quality)
-         inc-quality-n-times #(apply-n-times inc-keep-below-50 % quality)
-         ]
-    (cond
-      (> sell-in 10) (inc-quality-n-times 1)
-      (is-in-inclusive-range 6 10 sell-in) (inc-quality-n-times 2)
-      (is-in-inclusive-range 1 5 sell-in) (inc-quality-n-times 3)
-      :else 0)
-    ))
-
-(defn conjured-quality-modify
-  [sell-in quality]
-  (let [dec-twice (comp dec-keep-positive dec-keep-positive)]
-    (apply-sell-in-based-quality-modifier dec-twice sell-in quality))
-  )
-
 (def exact-name-quality-modifiers
-  {"Aged Brie"                                 brie-quality-modify,
-   "Backstage passes to a TAFKAL80ETC concert" backstage-quality-modify,
-   "Sulfuras, Hand of Ragnaros"                (fn [_ quality] quality)}
+  {"Aged Brie"                                 brie/quality-modify,
+   "Backstage passes to a TAFKAL80ETC concert" backstage/quality-modify,
+   "Sulfuras, Hand of Ragnaros"                sulfuras/quality-modify}
   )
 
 (def sell-in-modifiers
-  {"Sulfuras, Hand of Ragnaros" identity}
+  {"Sulfuras, Hand of Ragnaros" sulfuras/sell-in-modify}
   )
 
 (defn get-quality-modifier
   [name]
   (let [exact-name-modify (get exact-name-quality-modifiers name)]
     (cond
-      (re-find #"Conjured" name) conjured-quality-modify
+      (re-find #"Conjured" name) conjured/quality-modify
       exact-name-modify exact-name-modify
       :else generic-item-quality-modify)
     ))
