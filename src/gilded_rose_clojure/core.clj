@@ -2,7 +2,7 @@
   (:require [gilded-rose-clojure.helpers :refer :all])
   )
 
-(defn apply-once-and-again-after-sell-in
+(defn apply-sell-in-based-quality-modifier
   [modifier sell-in quality]
   (if (> sell-in 0)
     (apply-n-times modifier 1 quality)
@@ -12,13 +12,13 @@
 
 (defn generic-item-quality-modify
   [sell-in quality]
-  (apply-once-and-again-after-sell-in dec-keep-positive sell-in quality)
+  (apply-sell-in-based-quality-modifier dec-keep-positive sell-in quality)
   )
 
 (defn brie-quality-modify
   [sell-in quality]
-  (let [brie-modifier (partial inc-keep-below 50)]
-    (apply-once-and-again-after-sell-in brie-modifier sell-in quality)
+  (let [inc-keep-below-50 (partial inc-keep-below 50)]
+    (apply-sell-in-based-quality-modifier inc-keep-below-50 sell-in quality)
     )
   )
 
@@ -26,18 +26,20 @@
   [sell-in quality]
   (
     let [max-quality 50
-         inc-keep-below-50 (partial inc-keep-below max-quality)]
+         inc-keep-below-50 (partial inc-keep-below max-quality)
+         inc-quality-n-times #(apply-n-times inc-keep-below-50 % quality)
+         ]
     (cond
-      (> sell-in 10) (apply-n-times inc-keep-below-50 1 quality)
-      (is-in-inclusive-range 6 10 sell-in) (apply-n-times inc-keep-below-50 2 quality)
-      (is-in-inclusive-range 1 5 sell-in) (apply-n-times inc-keep-below-50 3 quality)
+      (> sell-in 10) (inc-quality-n-times 1)
+      (is-in-inclusive-range 6 10 sell-in) (inc-quality-n-times 2)
+      (is-in-inclusive-range 1 5 sell-in) (inc-quality-n-times 3)
       :else 0)
     ))
 
 (defn conjured-quality-modify
   [sell-in quality]
   (let [dec-twice (comp dec-keep-positive dec-keep-positive)]
-    (apply-once-and-again-after-sell-in dec-twice sell-in quality))
+    (apply-sell-in-based-quality-modifier dec-twice sell-in quality))
   )
 
 (def exact-name-quality-modifiers
@@ -73,8 +75,9 @@
 
 (defn update-item-sell-in
   [item]
-  (update item :sell-in
-          (get-sell-in-modifier (:name item)))
+  (let [name (:name item)
+        sell-in-modifier (get-sell-in-modifier name)]
+    (update item :sell-in sell-in-modifier))
   )
 
 (defn update-item
