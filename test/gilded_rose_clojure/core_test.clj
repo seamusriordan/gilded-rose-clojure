@@ -52,12 +52,12 @@
 
 (deftest sulfuras-test
   (testing "Sulfuras, Hand of Ragnaros"
-    (testing "quality does not change"
+    (testing "quality 80 does not change"
       (is (= 80
              (:quality (first (update-quality '({:name "Sulfuras, Hand of Ragnaros" :sell-in 4 :quality 80}))))
              ))
       )
-    (testing "sell in does not change"
+    (testing "sell in 0 does not change"
       (is (= 0
              (:sell-in (first (update-quality '({:name "Sulfuras, Hand of Ragnaros" :sell-in 0 :quality 80}))))
              ))
@@ -66,22 +66,22 @@
 
 (deftest backstage-test
   (testing "backstage"
-    (testing "quality up 1 when 11 days out"
+    (testing "quality 3 up 1 when 11 days out"
       (is (= 4
              (:quality (first (update-quality '({:name "Backstage passes to a TAFKAL80ETC concert" :sell-in 11 :quality 3}))))
              ))
       )
-    (testing "quality up 2 when 10 days out"
+    (testing "quality 3 up 2 when 10 days out"
       (is (= 5
              (:quality (first (update-quality '({:name "Backstage passes to a TAFKAL80ETC concert" :sell-in 10 :quality 3}))))
              ))
       )
-    (testing "quality up 3 when 5 days out"
+    (testing "quality 3 up 3 when 5 days out"
       (is (= 6
              (:quality (first (update-quality '({:name "Backstage passes to a TAFKAL80ETC concert" :sell-in 5 :quality 3}))))
              ))
       )
-    (testing "quality 0 when 0 days out"
+    (testing "quality 3 to 0 when 0 days out"
       (is (= 0
              (:quality (first (update-quality '({:name "Backstage passes to a TAFKAL80ETC concert" :sell-in -3 :quality 3}))))
              ))
@@ -90,25 +90,15 @@
 
 (deftest conjured-test
   (testing "Conjured"
-    (testing "Conjured breads quality drops by 2"
+    (testing "Conjured breads quality drops by 2 10 days out"
       (is (= 1
              (:quality (first (update-quality '({:name "Conjured bread" :sell-in 10 :quality 3}))))
              ))
       )
+    (testing "Conjured turnip quality drops by 4 2 days after sell in"
+      (is (= 1
+             (:quality (first (update-quality '({:name "Conjured turnip" :sell-in -2 :quality 5}))))
+             ))
+      )
     ))
 
-(deftest dec-keep-positive-tests
-  (testing "dec-keep-positive"
-    (testing "1 goes to 0"
-      (is (= 0 (dec-keep-positive 1))))
-    (testing "0 stays at 0"
-      (is (= 0 (dec-keep-positive 0))))
-    ))
-
-(deftest inc-keep-below-tests
-  (testing "inc-keep-below"
-    (testing "1 max of 50 goes to 2"
-      (is (= 2 (inc-keep-below 50 1))))
-    (testing "2 max of 2 stays at 2"
-      (is (= 2 (inc-keep-below 2 2))))
-    ))
