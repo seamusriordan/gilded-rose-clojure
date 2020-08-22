@@ -21,3 +21,11 @@
   (let [inc-val (inc val)]
     (if (> inc-val max) max inc-val)
     ))
+
+(defn apply-sell-in-based-quality-modifier
+  [modifier sell-in quality]
+  (if (> sell-in 0)
+    (apply-n-times modifier 1 quality)
+    (apply-n-times modifier 2 quality)
+    )
+  )

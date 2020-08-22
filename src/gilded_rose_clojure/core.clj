@@ -2,14 +2,6 @@
   (:require [gilded-rose-clojure.helpers :refer :all])
   )
 
-(defn apply-sell-in-based-quality-modifier
-  [modifier sell-in quality]
-  (if (> sell-in 0)
-    (apply-n-times modifier 1 quality)
-    (apply-n-times modifier 2 quality)
-    )
-  )
-
 (defn generic-item-quality-modify
   [sell-in quality]
   (apply-sell-in-based-quality-modifier dec-keep-positive sell-in quality)
@@ -104,8 +96,7 @@
               {:name "Backstage passes to a TAFKAL80ETC concert" :sell-in 5 :quality 49}
               {:name "Conjured Mana Cake" :sell-in 3 :quality 6}
               ]
-        updated-data (update-quality data)
-        ]
+        updated-data (update-quality data)]
     (doall (map println data))
     (println)
     (doall (map println updated-data))
