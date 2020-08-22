@@ -1,6 +1,7 @@
 (ns gilded-rose-clojure.core-test
   (:require [clojure.test :refer :all]
-            [gilded-rose-clojure.core :refer :all]))
+            [gilded-rose-clojure.core :refer :all]
+            [gilded-rose-clojure.helpers :refer :all]))
 
 (deftest item-tests
   (testing "generic item"
@@ -17,7 +18,7 @@
         (is (= 6
                (:quality (first (update-quality '({:name "Thing" :sell-in 1 :quality 7}))))
                ))))
-    (testing "zero sell in"
+    (testing "zero sell-in"
       (testing "quality in 7 goes to 5"
         (is (= 5
                (:quality (first (update-quality '({:name "Thing" :sell-in 0 :quality 7}))))
@@ -28,7 +29,9 @@
       (is (= 0
              (:quality (first (update-quality '({:name "Thing" :sell-in 4 :quality 0}))))
              )))
-    )
+    ))
+
+(deftest aged-brie-test
   (testing "aged brie"
     (testing "quality 3 increments to 4"
       (is (= 4
@@ -45,7 +48,9 @@
              (:quality (first (update-quality '({:name "Aged Brie" :sell-in 4 :quality 50}))))
              )
           ))
-    )
+    ))
+
+(deftest sulfuras-test
   (testing "Sulfuras, Hand of Ragnaros"
     (testing "quality does not change"
       (is (= 80
@@ -57,7 +62,9 @@
              (:sell-in (first (update-quality '({:name "Sulfuras, Hand of Ragnaros" :sell-in 0 :quality 80}))))
              ))
       )
-    )
+    ))
+
+(deftest backstage-test
   (testing "backstage"
     (testing "quality up 1 when 11 days out"
       (is (= 4
@@ -79,18 +86,16 @@
              (:quality (first (update-quality '({:name "Backstage passes to a TAFKAL80ETC concert" :sell-in -3 :quality 3}))))
              ))
       )
-    )
+    ))
+
+(deftest conjured-test
   (testing "Conjured"
     (testing "Conjured breads quality drops by 2"
       (is (= 1
              (:quality (first (update-quality '({:name "Conjured bread" :sell-in 10 :quality 3}))))
              ))
       )
-    )
-
-  )
-
-
+    ))
 
 (deftest dec-keep-positive-tests
   (testing "dec-keep-positive"
