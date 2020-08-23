@@ -2,13 +2,11 @@
 
 (defn is-in-inclusive-range
   [min max val]
-  (contains? (set (range min (inc max))) val)
-  )
+  (contains? (set (range min (inc max))) val))
 
 (defn apply-n-times
   [f n val]
-  (nth (iterate f val) n)
-  )
+  (nth (iterate f val) n))
 
 (defn dec-keep-positive
   [val]
@@ -22,10 +20,9 @@
     (if (> inc-val max) max inc-val)
     ))
 
-(defn apply-sell-in-based-quality-modifier
+(defn apply-standard-item-modifier
   [modifier sell-in quality]
   (if (> sell-in 0)
     (apply-n-times modifier 1 quality)
     (apply-n-times modifier 2 quality)
-    )
-  )
+    ))

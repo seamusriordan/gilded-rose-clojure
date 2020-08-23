@@ -1,45 +1,43 @@
 (ns gilded-rose-clojure.core
   (:require [gilded-rose-clojure.helpers :refer :all]
+            [gilded-rose-clojure.standard-item :as standard-item]
             [gilded-rose-clojure.brie :as brie]
             [gilded-rose-clojure.backstage :as backstage]
             [gilded-rose-clojure.conjured :as conjured]
             [gilded-rose-clojure.sulfuras :as sulfuras]))
 
-(defn generic-item-quality-modify
-  [sell-in quality]
-  (apply-sell-in-based-quality-modifier dec-keep-positive sell-in quality)
-  )
+
 
 (def exact-name-quality-modifiers
-  {"Aged Brie"                                 brie/quality-modify,
-   "Backstage passes to a TAFKAL80ETC concert" backstage/quality-modify,
-   "Sulfuras, Hand of Ragnaros"                sulfuras/quality-modify}
-  )
+  {"Aged Brie"                                 brie/quality-modifier,
+   "Backstage passes to a TAFKAL80ETC concert" backstage/quality-modifier,
+   "Sulfuras, Hand of Ragnaros"                sulfuras/quality-modifier})
 
 (def sell-in-modifiers
-  {"Sulfuras, Hand of Ragnaros" sulfuras/sell-in-modify}
-  )
+  {"Sulfuras, Hand of Ragnaros" sulfuras/sell-in-modify})
 
 (defn get-quality-modifier
   [name]
-  (let [exact-name-modify (get exact-name-quality-modifiers name)]
+  (let [exact-name-modifier (get exact-name-quality-modifiers name)]
     (cond
-      (re-find #"Conjured" name) conjured/quality-modify
-      exact-name-modify exact-name-modify
-      :else generic-item-quality-modify)
+      exact-name-modifier exact-name-modifier
+      (re-find #"Conjured" name) conjured/quality-modifier
+      :else standard-item/quality-modifier)
     ))
 
 (defn get-sell-in-modifier
   [name]
-  (get sell-in-modifiers name dec)
-  )
+  (let [exact-name-modifier (get sell-in-modifiers name)]
+    (cond
+      exact-name-modifier exact-name-modifier
+      :else standard-item/sell-in-modifier)
+    ))
 
 (defn update-item-quality
   [item]
   (let [sell-in (:sell-in item)
-        quality-modifier (get-quality-modifier (:name item))
-        quality-modifier-for-sell-in (partial quality-modifier sell-in)]
-    (update item :quality quality-modifier-for-sell-in)))
+        quality-modifier (get-quality-modifier (:name item))]
+    (update item :quality (partial quality-modifier sell-in))))
 
 (defn update-item-sell-in
   [item]

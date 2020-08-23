@@ -1,9 +1,10 @@
 (ns gilded-rose-clojure.sulfuras)
 
-(defn quality-modify
+(defn quality-modifier
   [_ quality]
-  quality
-  )
+  quality)
 
-(defn sell-in-modify [x] x)
+(defn sell-in-modify
+  [x]
+  x)
 
