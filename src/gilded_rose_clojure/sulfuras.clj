@@ -4,7 +4,5 @@
   [_ quality]
   quality)
 
-(defn sell-in-modify
-  [x]
-  x)
+(def sell-in-modify identity)
 

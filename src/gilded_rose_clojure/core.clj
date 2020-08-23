@@ -36,8 +36,10 @@
 (defn update-item-quality
   [item]
   (let [sell-in (:sell-in item)
-        quality-modifier (get-quality-modifier (:name item))]
-    (update item :quality (partial quality-modifier sell-in))))
+        name (:name item)
+        quality-modifier (get-quality-modifier name)]
+    (update item :quality (partial quality-modifier sell-in)))
+  )
 
 (defn update-item-sell-in
   [item]
