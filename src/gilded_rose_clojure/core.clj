@@ -24,7 +24,7 @@
 (defmulti get-updated-quality get-item-identifier)
 (defn setup-quality-modifier
   [key f]
-  (defmethod get-updated-quality key [{:keys [sell-in quality]}] (f sell-in quality)))
+  (defmethod get-updated-quality key [item] (f (item :sell-in) (item :quality))))
 (setup-quality-modifier :default standard-item/quality-modifier)
 (setup-quality-modifier :aged-brie brie/quality-modifier)
 (setup-quality-modifier :backstage-pass backstage/quality-modifier)
@@ -34,7 +34,7 @@
 (defmulti get-updated-sell-in get-item-identifier)
 (defn setup-sell-in-modifier
   [key f]
-  (defmethod get-updated-sell-in key [{:keys [sell-in]}] (f sell-in)))
+  (defmethod get-updated-sell-in key [item] (f (item :sell-in))))
 (setup-sell-in-modifier :default standard-item/sell-in-modifier)
 (setup-sell-in-modifier :sulfuras sulfuras/sell-in-modifier)
 
