@@ -99,6 +99,12 @@
       (is (= 1
              (:quality (first (update-quality '({:name "Conjured turnip" :sell-in -2 :quality 5}))))
              ))
-      )
-    ))
+      ))
+  (testing "Not conjured"
+    (testing "Conjurededer quality drops by 1"
+      (is (= 4
+             (:quality (first (update-quality '({:name "Conjurededer" :sell-in 5 :quality 5}))))
+             ))
+      ))
+  )
 
