@@ -7,45 +7,39 @@
             [gilded-rose-clojure.sulfuras :as sulfuras]))
 
 
+(def exact-name-items
+  {"Aged Brie"                                 :aged-brie,
+   "Backstage passes to a TAFKAL80ETC concert" :backstage-pass,
+   "Sulfuras, Hand of Ragnaros"                :sulfuras}
+  )
 
-(def exact-name-quality-modifiers
-  {"Aged Brie"                                 brie/quality-modifier,
-   "Backstage passes to a TAFKAL80ETC concert" backstage/quality-modifier,
-   "Sulfuras, Hand of Ragnaros"                sulfuras/quality-modifier})
-
-(def sell-in-modifiers
-  {"Sulfuras, Hand of Ragnaros" sulfuras/sell-in-modify})
-
-(defn get-quality-modifier
-  [name]
-  (let [exact-name-modifier (get exact-name-quality-modifiers name)]
-    (cond
-      exact-name-modifier exact-name-modifier
-      (re-find #"Conjured" name) conjured/quality-modifier
-      :else standard-item/quality-modifier)
+(defn get-item-identifier
+  [{:keys [name]}]
+  (cond
+    (exact-name-items name) (exact-name-items name)
+    (re-find #"Conjured" name) :conjured
+    :else :default
     ))
 
-(defn get-sell-in-modifier
-  [name]
-  (let [exact-name-modifier (get sell-in-modifiers name)]
-    (cond
-      exact-name-modifier exact-name-modifier
-      :else standard-item/sell-in-modifier)
-    ))
+(defmulti quality-modifier get-item-identifier)
+(defmethod quality-modifier :default [{:keys [sell-in quality]}] (standard-item/quality-modifier sell-in quality))
+(defmethod quality-modifier :aged-brie [{:keys [sell-in quality]}] (brie/quality-modifier sell-in quality))
+(defmethod quality-modifier :backstage-pass [{:keys [sell-in quality]}] (backstage/quality-modifier sell-in quality))
+(defmethod quality-modifier :conjured [{:keys [sell-in quality]}] (conjured/quality-modifier sell-in quality))
+(defmethod quality-modifier :sulfuras [{:keys [sell-in quality]}] (sulfuras/quality-modifier sell-in quality))
+
+(defmulti sell-in-modifier get-item-identifier)
+(defmethod sell-in-modifier :default [{:keys [sell-in]}] (standard-item/sell-in-modifier sell-in))
+(defmethod sell-in-modifier :sulfuras[{:keys [sell-in]}] (sulfuras/sell-in-modify sell-in))
 
 (defn update-item-quality
   [item]
-  (let [sell-in (:sell-in item)
-        name (:name item)
-        quality-modifier (get-quality-modifier name)]
-    (update item :quality (partial quality-modifier sell-in)))
+  (assoc item :quality (quality-modifier item))
   )
 
 (defn update-item-sell-in
   [item]
-  (let [name (:name item)
-        sell-in-modifier (get-sell-in-modifier name)]
-    (update item :sell-in sell-in-modifier))
+  (assoc item :sell-in (sell-in-modifier item))
   )
 
 (defn update-item
